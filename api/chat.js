@@ -68,7 +68,8 @@ export default async function handler(req, res) {
       const result = parseTurn(out.text);
       return res.status(200).json({ ...result, turn, done: turn >= MAX_TURNS });
     } catch (e) {
-      if (attempt === 1) return res.status(502).json({ error: "AI reply failed, try again" });
-    }
+  console.error("chat attempt", attempt, e?.message ?? e);
+  if (attempt === 1) return res.status(502).json({ error: "AI reply failed, try again" });
+}
   }
 }
