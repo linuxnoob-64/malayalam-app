@@ -6,7 +6,7 @@ import { GoogleGenAI } from "@google/genai";
 import { SCENARIOS } from "../src/lib/scenarios.js";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-const MODEL = "gemini-2.5-flash";
+const MODEL = "gemini-flash-latest";
 const MAX_TURNS = 8;
 
 function systemPrompt(s, turn) {
