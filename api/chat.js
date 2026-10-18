@@ -6,7 +6,7 @@ import { GoogleGenAI } from "@google/genai";
 import { SCENARIOS } from "../src/lib/scenarios.js";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-const MODEL = "gemini-flash-latest";
+const MODEL = "gemini-2.5-flash-lite";
 const MAX_TURNS = 8;
 
 function systemPrompt(s, turn) {
@@ -70,6 +70,7 @@ export default async function handler(req, res) {
     } catch (e) {
   console.error("chat attempt", attempt, e?.message ?? e);
   if (attempt === 1) return res.status(502).json({ error: "AI reply failed, try again" });
+  await new Promise(r => setTimeout(r, 1500));
 }
   }
 }
