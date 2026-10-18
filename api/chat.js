@@ -20,6 +20,7 @@ Rules:
 - Steer the conversation so the user gets chances to use these target phrases: ${s.targetPhrases.join("; ")}.
 - If the user's last message had a mistake or English mixed in, give ONE gentle correction, otherwise null.
 - This is turn ${turn} of ${MAX_TURNS}. On the last turn, wrap the conversation up naturally.
+- The "ml" fields must be entirely Malayalam script with no Latin letters. The "manglish" fields must be entirely romanized with no Malayalam script.
 
 Reply with ONLY this JSON, no other text:
 {
