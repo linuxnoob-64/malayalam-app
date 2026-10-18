@@ -2,11 +2,11 @@
 // The browser sends { scenarioId, history }. This file holds the API key,
 // builds the prompt, calls the LLM, and returns one validated character turn.
 
-import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenAI } from "@google/genai";
 import { SCENARIOS } from "../src/lib/scenarios.js";
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY }); // set in Vercel env vars, never in code
-const MODEL = "claude-sonnet-5-5"; // try claude-haiku-4-5-20251001 if cost matters; Joel judges Malayalam quality
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const MODEL = "gemini-2.5-flash";
 const MAX_TURNS = 8;
 
 function systemPrompt(s, turn) {
@@ -53,13 +53,19 @@ export default async function handler(req, res) {
   // one retry if the model returns broken JSON
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      const out = await client.messages.create({
-        model: MODEL,
-        max_tokens: 600,
-        system: systemPrompt(s, turn),
-        messages,
-      });
-      const result = parseTurn(out.content[0].text);
+     const out = await ai.models.generateContent({
+          model: MODEL,
+          contents: messages.map(m => ({
+              role: m.role === "assistant" ? "model" : "user",
+              parts: [{ text: m.content }],
+           })),
+           config: {
+           	systemInstruction: systemPrompt(s, turn),
+    		maxOutputTokens: 600,
+   	        responseMimeType: "application/json",
+  	      },
+            });
+      const result = parseTurn(out.text);
       return res.status(200).json({ ...result, turn, done: turn >= MAX_TURNS });
     } catch (e) {
       if (attempt === 1) return res.status(502).json({ error: "AI reply failed, try again" });
