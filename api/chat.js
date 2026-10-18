@@ -6,7 +6,7 @@ import { GoogleGenAI } from "@google/genai";
 import { SCENARIOS } from "../src/lib/scenarios.js";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-const MODEL = "gemini-2.5-flash-lite";
+const MODEL = "gemini-3.5-flash-lite";
 const MAX_TURNS = 8;
 
 function systemPrompt(s, turn) {
@@ -51,7 +51,7 @@ export default async function handler(req, res) {
   const messages = history.length ? history : [{ role: "user", content: "(conversation starts, you speak first)" }];
 
   // one retry if the model returns broken JSON
-  for (let attempt = 0; attempt < 2; attempt++) {
+  for (let attempt = 0; attempt < 3; attempt++) {
     try {
      const out = await ai.models.generateContent({
           model: MODEL,
@@ -69,7 +69,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ ...result, turn, done: turn >= MAX_TURNS });
     } catch (e) {
   console.error("chat attempt", attempt, e?.message ?? e);
-  if (attempt === 1) return res.status(502).json({ error: "AI reply failed, try again" });
+  if (attempt === 2) return res.status(502).json({ error: "AI reply failed, try again" });
   await new Promise(r => setTimeout(r, 1500));
 }
   }
