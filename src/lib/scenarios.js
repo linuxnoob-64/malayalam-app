@@ -1,5 +1,7 @@
 // Target phrases steer live conversation (server). Keep Manglish checked by a fluent speaker.
 
+import { EXTRA_SCENARIOS } from "./extraScenes.js";
+
 export const SCENARIO_CATEGORIES = [
   { id: "all", label: "All" },
   { id: "family", label: "Family" },
@@ -7,6 +9,7 @@ export const SCENARIO_CATEGORIES = [
   { id: "food", label: "Food" },
   { id: "school", label: "School" },
   { id: "daily", label: "Everyday" },
+  { id: "culture", label: "Home & Onam" },
 ];
 
 function listFrom(map) {
@@ -331,6 +334,7 @@ export const SCENARIOS = {
     accent: "gold",
     minutes: "5-7 min",
   },
+  ...EXTRA_SCENARIOS,
 };
 
 export const SCENARIO_LIST = listFrom(SCENARIOS);

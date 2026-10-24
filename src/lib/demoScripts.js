@@ -1,7 +1,9 @@
 /**
- * Multi-turn demo scripts for UI preview only (VITE_DEMO_CHAT).
- * Not live AI. Lines need native-speaker review.
+ * Multi-turn lines for each scene. Live chat uses these only when VITE_DEMO_CHAT is on.
+ * Lines need native-speaker review.
  */
+
+import { EXTRA_SCRIPTS } from "./extraScenes.js";
 
 /** @typedef {{ ml: string, manglish: string, en: string }} Triple */
 /** @typedef {{
@@ -919,6 +921,7 @@ export const DEMO_SCRIPTS = {
     step("nannayi aadi.", "nannayi aadi.", "That was fun.", "nanni", "Thanks"),
     step("bye!", "bye!", "Bye!", "bye", "Bye"),
   ],
+  ...EXTRA_SCRIPTS,
 };
 
 /**
