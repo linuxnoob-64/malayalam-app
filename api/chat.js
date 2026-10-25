@@ -5,7 +5,7 @@ const OPENER = "(conversation starts, you speak first)";
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
 
-  const { scenarioId, history = [] } = req.body ?? {};
+  const { scenarioId, history = [], addressAs } = req.body ?? {};
 
   const s = SCENARIOS[scenarioId];
   if (!s) return res.status(400).json({ error: "unknown scenario" });
@@ -17,7 +17,11 @@ export default async function handler(req, res) {
   const lastUser = [...history].reverse().find((m) => m.role === "user");
   const user_message = first ? OPENER : lastUser?.content ?? OPENER;
   const chat_history = first ? OPENER : history.map((m) => `${m.role}: ${m.content}`).join("\n");
-  const scenario = [s.character, s.setting, s.targetPhrases.join("; ")].join("; ");
+  const address =
+    addressAs === "mole"
+      ? "Address the learner as mole (daughter, female)"
+      : "Address the learner as mone (son, male)";
+  const scenario = [s.character, s.setting, s.targetPhrases.join("; "), address].join("; ");
 
   const host = req.headers.host ?? "";
   const protocol = host.startsWith("localhost") ? "http" : "https";
