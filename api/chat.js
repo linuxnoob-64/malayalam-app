@@ -1,77 +1,67 @@
-// Vercel serverless function: POST /api/chat
-// The browser sends { scenarioId, history }. This file holds the API key,
-// builds the prompt, calls the LLM, and returns one validated character turn.
-
-import { GoogleGenAI } from "@google/genai";
 import { SCENARIOS } from "../src/lib/scenarios.js";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-const MODEL = "gemini-3.5-flash-lite";
-const MAX_TURNS = 8;
-
-function systemPrompt(s, turn) {
-  return `You are ${s.character} in this situation: ${s.setting}.
-You are talking with a teenager who grew up in the US hearing Malayalam at home. They understand a lot but freeze when speaking.
-
-Rules:
-- Speak casual, everyday spoken Malayalam (Kerala colloquial), never formal written Malayalam.
-- Keep every line short: one or two sentences.
-- Stay in character. Never mention being an AI.
-- Steer the conversation so the user gets chances to use these target phrases: ${s.targetPhrases.join("; ")}.
-- If the user's last message had a mistake or English mixed in, give ONE gentle correction, otherwise null.
-- This is turn ${turn} of ${MAX_TURNS}. On the last turn, wrap the conversation up naturally.
-- The "ml" fields must be entirely Malayalam script with no Latin letters. The "manglish" fields must be entirely romanized with no Malayalam script.
-
-Reply with ONLY this JSON, no other text:
-{
-  "line": { "ml": "<Malayalam script>", "manglish": "<romanized>", "en": "<English meaning>" },
-  "correction": null or { "said": "<what they said>", "better_manglish": "<better phrasing>", "en": "<meaning>" },
-  "suggested_reply": { "ml": "...", "manglish": "...", "en": "..." },
-  "phrases_used": ["<target phrases the user used correctly in their last message>"]
-}`;
-}
-
-function parseTurn(text) {
-  const json = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1));
-  for (const k of ["ml", "manglish", "en"]) {
-    if (typeof json.line?.[k] !== "string") throw new Error(`missing line.${k}`);
-    if (typeof json.suggested_reply?.[k] !== "string") throw new Error(`missing suggested_reply.${k}`);
-  }
-  json.phrases_used ??= [];
-  return json;
-}
+const OPENER = "(conversation starts, you speak first)";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
-  const { scenarioId, history = [] } = req.body ?? {};
+
+  const { scenarioId, history = [], addressAs } = req.body ?? {};
+
   const s = SCENARIOS[scenarioId];
   if (!s) return res.status(400).json({ error: "unknown scenario" });
 
-  // history = [{ role: "user"|"assistant", content: "..." }]; assistant turns stored as their Manglish line
   const turn = Math.floor(history.length / 2) + 1;
-  const messages = history.length ? history : [{ role: "user", content: "(conversation starts, you speak first)" }];
+  const done = turn >= 8;
+  const first = history.length === 0;
 
-  // one retry if the model returns broken JSON
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-     const out = await ai.models.generateContent({
-          model: MODEL,
-          contents: messages.map(m => ({
-              role: m.role === "assistant" ? "model" : "user",
-              parts: [{ text: m.content }],
-           })),
-           config: {
-           	systemInstruction: systemPrompt(s, turn),
-    		maxOutputTokens: 600,
-   	        responseMimeType: "application/json",
-  	      },
-            });
-      const result = parseTurn(out.text);
-      return res.status(200).json({ ...result, turn, done: turn >= MAX_TURNS });
-    } catch (e) {
-  console.error("chat attempt", attempt, e?.message ?? e);
-  if (attempt === 2) return res.status(502).json({ error: "AI reply failed, try again" });
-  await new Promise(r => setTimeout(r, 1500));
-}
+  const lastUser = [...history].reverse().find((m) => m.role === "user");
+  const user_message = first ? OPENER : lastUser?.content ?? OPENER;
+  const chat_history = first ? OPENER : history.map((m) => `${m.role}: ${m.content}`).join("\n");
+  const address =
+    addressAs === "mole"
+      ? "Address the learner as mole (daughter, female)"
+      : addressAs === "kunje"
+        ? "Address the learner as kunje, gender-neutral, avoid mone or mole"
+        : "Address the learner as mone (son, male)";
+  const scenario = [s.character, s.setting, s.targetPhrases.join("; "), address].join("; ");
+
+  const host = req.headers.host ?? "";
+  const protocol = host.startsWith("localhost") ? "http" : "https";
+
+  let data;
+  try {
+    const r = await fetch(`${protocol}://${host}/api/index`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_message, scenario, turn, chat_history }),
+    });
+    data = await r.json().catch(() => ({}));
+    if (!r.ok) return res.status(502).json({ error: data.error ?? `backend returned ${r.status}` });
+  } catch (err) {
+    return res.status(502).json({ error: String(err?.message ?? err) });
   }
+
+  const grade = first ? null : data.grade;
+  const rationale = first ? null : data.rationale;
+  const correction =
+    !first && !done && typeof grade === "number" && grade <= 3
+      ? { said: user_message, better_manglish: data.hint_full_romanized, en: rationale }
+      : null;
+
+  return res.status(200).json({
+    line: { ml: data.script, manglish: data.romanized, en: data.english },
+    correction,
+    suggested_reply: done
+      ? null
+      : {
+          ml: data.hint_word,
+          manglish: data.hint_full_romanized,
+          en: data.hint_full_english,
+        },
+    phrases_used: [],
+    turn,
+    done,
+    grade,
+    rationale,
+  });
 }

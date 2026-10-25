@@ -45,6 +45,7 @@ export default function ConversationScreen({ scenarioId, onComplete, onHome }) {
   const [hintLevel, setHintLevel] = useState(0);
   const [activeSuggested, setActiveSuggested] = useState(null);
   const [currentTurn, setCurrentTurn] = useState(1);
+  const [done, setDone] = useState(false);
   const pendingRef = useRef({ hintLevel: 0, suggested: null });
   const listRef = useRef(null);
   const inputRef = useRef(null);
@@ -79,16 +80,14 @@ export default function ConversationScreen({ scenarioId, onComplete, onHome }) {
 
   const ingestTurn = useCallback(
     (data, priorMessages, { afterUserSend = false } = {}) => {
-      let nextStats = statsRef.current;
       if (afterUserSend) {
         const suggested =
           pendingRef.current.suggested ??
           suggestedForLatestUserTurn(priorMessages);
-        nextStats = recordTurn(statsRef.current, {
+        const nextStats = recordTurn(statsRef.current, {
           hintLevel: pendingRef.current.hintLevel,
           phrasesUsed: data.phrases_used ?? [],
           suggested,
-          userReply: pendingRef.current.userReply,
         });
         setStats(nextStats);
         pendingRef.current = { hintLevel: 0, suggested: null };
@@ -98,7 +97,9 @@ export default function ConversationScreen({ scenarioId, onComplete, onHome }) {
         role: "assistant",
         line: data.line,
         correction: data.correction,
-        suggested_reply: data.suggested_reply,
+        suggested_reply: data.suggested_reply ?? null,
+        grade: typeof data.grade === "number" ? data.grade : null,
+        rationale: data.rationale ?? null,
         turn: data.turn,
       };
       const nextMessages = [...priorMessages, assistantMsg];
@@ -108,12 +109,10 @@ export default function ConversationScreen({ scenarioId, onComplete, onHome }) {
       setCurrentTurn(data.turn ?? 1);
       if (data.demo) setDemoMode(true);
 
-      if (data.done) {
-        finishSession(nextMessages, nextStats, true);
-      }
+      if (data.done) setDone(true);
       return nextMessages;
     },
-    [finishSession],
+    [],
   );
 
   const requestTurn = useCallback(
@@ -144,9 +143,9 @@ export default function ConversationScreen({ scenarioId, onComplete, onHome }) {
 
   const handleSend = async () => {
     const text = input.trim();
-    if (!text || loading) return;
+    if (!text || loading || done) return;
 
-    pendingRef.current = { hintLevel, suggested: activeSuggested, userReply: text };
+    pendingRef.current = { hintLevel, suggested: activeSuggested };
     const userMsg = { role: "user", content: text };
     const nextMessages = [...messages, userMsg];
     setMessages(nextMessages);
@@ -193,11 +192,15 @@ export default function ConversationScreen({ scenarioId, onComplete, onHome }) {
   };
 
   const handleEnd = () => {
-    finishSession(messages, statsRef.current, false);
+    finishSession(messages, statsRef.current, done);
+  };
+
+  const handleSeeResults = () => {
+    finishSession(messages, statsRef.current, true);
   };
 
   const advanceHint = () => {
-    if (!activeSuggested?.manglish || loading) return;
+    if (!activeSuggested?.manglish || loading || done) return;
     setHintLevel((l) => Math.min(3, l + 1));
   };
 
@@ -214,6 +217,7 @@ export default function ConversationScreen({ scenarioId, onComplete, onHome }) {
 
   const latestAssistantIndex = lastAssistantIndex(messages);
   const showHint =
+    !done &&
     !loading &&
     latestAssistantIndex >= 0 &&
     messages[messages.length - 1]?.role === "assistant";
@@ -295,13 +299,21 @@ export default function ConversationScreen({ scenarioId, onComplete, onHome }) {
                     suggested={activeSuggested}
                     level={hintLevel}
                     onAdvance={advanceHint}
-                    disabled={loading}
+                    disabled={loading || done}
                   />
                 ) : null}
               </div>
             </div>
           ),
         )}
+
+        {done ? (
+          <div className="conversation-results">
+            <button type="button" className="btn btn-primary" onClick={handleSeeResults}>
+              See results
+            </button>
+          </div>
+        ) : null}
 
         {loading ? (
           <div className="message message--assistant message--typing" aria-live="polite">
@@ -331,7 +343,7 @@ export default function ConversationScreen({ scenarioId, onComplete, onHome }) {
         </div>
       ) : null}
 
-      <footer className="composer">
+      <footer className={`composer${done ? " composer--closed" : ""}`}>
         {hintPreview ? (
           <p className="composer__hint-preview" aria-live="polite">
             Hint: {hintPreview.text}
@@ -356,6 +368,7 @@ export default function ConversationScreen({ scenarioId, onComplete, onHome }) {
                 type="button"
                 className={`mic-btn ${speech.listening ? "mic-btn--active" : ""}`}
                 onClick={speech.toggle}
+                disabled={done}
                 aria-pressed={speech.listening}
                 title={speech.sttNote}
               >
@@ -367,20 +380,24 @@ export default function ConversationScreen({ scenarioId, onComplete, onHome }) {
             id="reply-input"
             ref={inputRef}
             rows={2}
-            placeholder="Type your reply, or tap Voice for Malayalam speech recognition…"
+            placeholder={
+              done
+                ? "Conversation finished"
+                : "Type your reply, or tap Voice for Malayalam speech recognition…"
+            }
             value={input}
             onChange={(e) => {
               setInput(e.target.value);
               speech.clearError();
             }}
             onKeyDown={handleKeyDown}
-            disabled={loading && messages.length === 0}
+            disabled={done || (loading && messages.length === 0)}
           />
           <button
             type="button"
             className="btn btn-primary"
             onClick={handleSend}
-            disabled={!input.trim() || loading}
+            disabled={!input.trim() || loading || done}
           >
             Send
           </button>

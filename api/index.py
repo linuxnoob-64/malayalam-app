@@ -19,7 +19,7 @@ max_turns = 8
 # Response Schema
 class LessonResponse(BaseModel):
     script: str = Field(description="Malayalam script (Malayalam Lipi) of the roleplay character's response")
-    romanized: str = Field(description="Manglish romanized text of the roleplay character's response")
+    romanized: str = Field(description="Manglish romanized text of the roleplay character's response. IN THE LATIN ALPHABET")
     english: str = Field(description="Natural English translation of the roleplay character's response")
     hint_word: str = Field(description="First good word of a good reply by the user in Malayalam script (1st hint)")
     hint_full_romanized: str = Field(description="Full phrase of a good reply by the user in Manglish (2nd hint)")
@@ -48,28 +48,27 @@ class LessonResponse(BaseModel):
         1: The response has very little understandable Malayalam or bears
         little meaningful relation to the conversation.
 
-        0: Gibberish, no meaningful attempt to communicate, or a response
-        entirely in a language other than Malayalam or understandable
+        0: Gibberish, no meaningful attempt to communicate, or a response in a language other than Malayalam or understandable
         romanized Malayalam.
 
         GRADING RULES:
         - Accept both Malayalam script and understandable romanized Malayalam.
         - Grade only the user's latest input.
-        - Evaluate grammatical accuracy, vocabulary, naturalness,
-        comprehensibility, and relevance to the ongoing conversation.
-        - A grammatically correct but completely unrelated response
-        must not receive a 5.
-        - A humorous, sarcastic, or absurd response can receive a 5 if
-        it is linguistically correct and relevant to the conversation.
-        - Judge relevance in context, not by whether the user agrees
-        with the character or gives the expected answer.
+        - Evaluate grammatical accuracy, vocabulary, naturalness, comprehensibility, and relevance to the ongoing conversation.
+        - A grammatically correct but completely unrelated response must not receive a 5.
+        - A humorous, sarcastic, or absurd response can receive a 5 if it is linguistically correct and relevant to the conversation.
+        - Judge relevance in context, not by whether the user agrees with the character or gives the expected answer.
         - Do not penalize valid colloquial or regional Malayalam.
         - Deduct points proportionately for language errors and irrelevance.
         - Do not inflate grades merely to be encouraging.
         - Provide an accurate, specific rationale for the assigned grade.
+        - Always reply in Malayalam. Never switch to English or offer to speak English, even if the user struggles. If they seem lost, use simpler Malayalam.
+        - hint_word, hint_full_romanized and hint_full_english are what the USER could say back to you next, in the user's voice, never your own line.
+        - A reply in English or any other language other than Malayalam or Manglish romanization is an automatic 0; this overrides relevance
+        - romanized fields use Latin letters only, no Malayalam script.
         """
     )
-    rationale: str = Field(description="A 1-sentence explanation of why you gave the assigned grade of the user's input and suggestions on how to improve")
+    rationale: str = Field(description="A 1-sentence explanation of why you gave the assigned grade of the user's input and suggestions on how to improve; refer to the user as 'you';written in English")
 
 
 def generate_ai_response(user_message,scenario,turn,chat_history):
@@ -152,8 +151,8 @@ class handler(BaseHTTPRequestHandler):
                 self.send_json(400, {"error": "scenario must be a non-empty string"})
                 return
 
-            if not isinstance(turn, str) or not turn.strip():
-                self.send_json(400, {"error": "turn must be a non-empty string"})
+            if type(turn) is not int or not 1 <= turn <= max_turns:
+                self.send_json(400, {"error": f"turn must be an integer from 1 to {max_turns}"})
                 return
             
             if not isinstance(chat_history, str) or not chat_history.strip():
