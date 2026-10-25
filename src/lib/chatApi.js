@@ -5,6 +5,7 @@
 
 import { getDemoTurn } from "./demoScripts.js";
 import { getScenarioPlayCount } from "./scenarioProgress.js";
+import { loadAddressAs } from "./addressAs.js";
 
 const DEMO_LABEL = "Scripted preview on this device";
 
@@ -33,7 +34,7 @@ export async function fetchChatTurn(scenarioId, history) {
   const res = await fetch("/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ scenarioId, history }),
+    body: JSON.stringify({ scenarioId, history, addressAs: loadAddressAs() }),
   });
 
   if (!res.ok) {

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { loadAddressAs, saveAddressAs } from "../lib/addressAs.js";
 import { loadPracticeStats } from "../lib/practiceStats.js";
 import { loadSavedPhrases } from "../lib/phrasesStorage.js";
 import { getScenarioPlayCount } from "../lib/scenarioProgress.js";
@@ -13,6 +14,7 @@ const FEATURED_IDS = ["uncle", "grandma", "kerala"];
 
 export default function HomeScreen({ onStartScenario, onOpenPhrases, phrasesRevision = 0 }) {
   const [category, setCategory] = useState("all");
+  const [addressAs, setAddressAs] = useState(() => loadAddressAs());
   const stats = useMemo(() => loadPracticeStats(), []);
   void phrasesRevision;
   const savedCount = loadSavedPhrases().length;
@@ -22,6 +24,11 @@ export default function HomeScreen({ onStartScenario, onOpenPhrases, phrasesRevi
     () => SCENARIO_LIST.filter((s) => FEATURED_IDS.includes(s.id)),
     [],
   );
+
+  const chooseAddressAs = (value) => {
+    saveAddressAs(value);
+    setAddressAs(value);
+  };
 
   return (
     <div className="screen home-screen">
@@ -39,6 +46,28 @@ export default function HomeScreen({ onStartScenario, onOpenPhrases, phrasesRevi
               Practice short back-and-forth scenes with people you actually meet. When you freeze mid-sentence,
               hints give you the first word, then the full phrase, then English.
             </p>
+            <div className="address-setting">
+              <span className="address-setting__label" id="address-setting-label">
+                Call me
+              </span>
+              <div className="dialogue-toggle" role="group" aria-labelledby="address-setting-label">
+                {[
+                  { id: "mone", label: "Mone (son)" },
+                  { id: "mole", label: "Mole (daughter)" },
+                  { id: "kunje", label: "Kunje (neutral)" },
+                ].map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    className={`dialogue-toggle__option ${addressAs === opt.id ? "dialogue-toggle__option--active" : ""}`}
+                    aria-pressed={addressAs === opt.id}
+                    onClick={() => chooseAddressAs(opt.id)}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
             <div className="home-hero__actions">
               <button
                 type="button"
