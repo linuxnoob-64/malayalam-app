@@ -68,7 +68,7 @@ class LessonResponse(BaseModel):
         - romanized fields use Latin letters only, no Malayalam script.
         """
     )
-    rationale: str = Field(description="A 1-sentence explanation of why you gave the assigned grade of the user's input and suggestions on how to improve; refer to the user as 'you'")
+    rationale: str = Field(description="A 1-sentence explanation of why you gave the assigned grade of the user's input and suggestions on how to improve; refer to the user as 'you';written in English")
 
 
 def generate_ai_response(user_message,scenario,turn,chat_history):
@@ -154,7 +154,6 @@ class handler(BaseHTTPRequestHandler):
             if not isinstance(turn, str) or not turn.strip():
                 self.send_json(400, {"error": "turn must be a non-empty string"})
                 return
-            turn = int(turn)
             
             if not isinstance(chat_history, str) or not chat_history.strip():
                 self.send_json(400, {"error": "chat_history must be a non-empty string"})
