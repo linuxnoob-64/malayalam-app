@@ -33,7 +33,7 @@ export default async function handler(req, res) {
     const r = await fetch(`${protocol}://${host}/api/index`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_message, scenario, turn: String(turn), chat_history }),
+      body: JSON.stringify({ user_message, scenario, turn, chat_history }),
     });
     data = await r.json().catch(() => ({}));
     if (!r.ok) return res.status(502).json({ error: data.error ?? `backend returned ${r.status}` });
