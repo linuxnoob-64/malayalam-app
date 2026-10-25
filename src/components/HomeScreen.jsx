@@ -151,8 +151,8 @@ export default function HomeScreen({ onStartScenario, onOpenPhrases, phrasesRevi
       </section>
 
       <section className="home-section" aria-labelledby="featured-heading">
-        <h2 id="featured-heading">Popular first sessions</h2>
-        <p className="section-lead">Three scenes most people start with.</p>
+        <h2 id="featured-heading">Good first sessions</h2>
+        <p className="section-lead">Three easy scenes to start with.</p>
         <div className="scenario-grid scenario-grid--featured">
           {featured.map((s) => (
             <ScenarioCard

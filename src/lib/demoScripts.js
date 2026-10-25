@@ -121,7 +121,7 @@ export const DEMO_SCRIPTS = {
       correction: null,
       suggested_reply: {
         ml: "നന്ദി!",
-        manglish: "nandi!",
+        manglish: "nanni!",
         en: "Thank you!",
       },
       phrases_used: [],
@@ -186,9 +186,9 @@ export const DEMO_SCRIPTS = {
     ),
     step(
       "ഇനി Onam-il കാണാം.",
-      "ini Onam-il kanaam.",
+      "ini Onam-il kaanam.",
       "See you at Onam.",
-      "athe, kanaam",
+      "athe, kaanam",
       "Yes, see you",
     ),
     step(
@@ -203,7 +203,7 @@ export const DEMO_SCRIPTS = {
     step("മോളെ, കഴിച്ചോ?", "mole, kazhicho?", "Dear, have you eaten?", "athe, kazhichu", "Yes, I ate"),
     step("സുഖമാണോ?", "sukhamano?", "Are you well?", "njan sukhamayi irikkunnu", "I am doing well"),
     step("എപ്പോൾ വരും?", "eppol varum?", "When will you come?", "summer-il varum", "I will come in summer"),
-    step("പഠിത്തം നന്നായി?", "paditham nannayi?", "Studying well?", "padikkunnu", "I am studying"),
+    step("പഠിത്തം നന്നായി?", "padiththam nannayi?", "Studying well?", "padikkunnu", "I am studying"),
     step("ചൂടുണ്ടോ?", "choodundo?", "Is it hot there?", "kurachu undu", "A little"),
     step("അമ്മയോട് hi പറ.", "ammayodu hi para.", "Say hi to mom.", "parayam", "I will tell her"),
     step("സ്നേഹം.", "sneham.", "Love you.", "enikkum sneham", "Love you too"),
@@ -260,7 +260,7 @@ export const DEMO_SCRIPTS = {
       "Okay",
     ),
     step(
-      "നന്നി! നന്നി!",
+      "നന്ദി! നന്ദി!",
       "nanni! nanni!",
       "Thank you! Thank you!",
       "pooyi varaam",
@@ -304,7 +304,7 @@ export const DEMO_SCRIPTS = {
       "Okay",
     ),
     step(
-      "നന്നി!",
+      "നന്ദി!",
       "nanni!",
       "Thank you!",
       "nanni",
@@ -350,7 +350,7 @@ export const DEMO_SCRIPTS = {
       "No",
     ),
     step(
-      "നന്നി ചേച്ചി.",
+      "നന്ദി ചേച്ചി.",
       "nanni chechi.",
       "Thank you, dear.",
       "nanni",
@@ -465,7 +465,7 @@ export const DEMO_SCRIPTS = {
       "I ate, I will rest",
     ),
     step(
-      "വന്നതിന് നന്നി.",
+      "വന്നതിന് നന്ദി.",
       "vannathinu nanni.",
       "Thanks for coming.",
       "nanni",
@@ -526,7 +526,7 @@ export const DEMO_SCRIPTS = {
     step("വാ, പോകാം.", "vaa, pokaam.", "Come, let us go.", "varunnu", "I am coming"),
   ],
   restaurant: [
-    step("എന്താ വേണം?", "entha venam?", "What would you like?", "randu chaya", "Two teas"),
+    step("എന്താ വേണം?", "entha venam?", "What would you like?", "randu chaaya", "Two teas"),
     step(
       "സ്ട്രോങ്ങ് അല്ലേ, ലൈറ്റ് അല്ലേ?",
       "strong alle, light alle?",
@@ -556,7 +556,7 @@ export const DEMO_SCRIPTS = {
       "It is good",
     ),
     step("വേറെ എന്താ?", "vere entha?", "Anything else?", "illa, mathi", "No, that is all"),
-    step("നന്നി!", "nanni!", "Thank you!", "nanni", "Thank you"),
+    step("നന്ദി!", "nanni!", "Thank you!", "nanni", "Thank you"),
     step("പിന്നെ വരണം.", "pinne varanam.", "Come again.", "athe", "Yes"),
   ],
   onam: [
@@ -615,7 +615,7 @@ export const DEMO_SCRIPTS = {
     ),
     step(
       "parent-നെ ഹെൽപ്പ് ചെയ്യുന്നുണ്ടോ?",
-      "parent-ine help cheyyunnundo?",
+      "parent-ne help cheyyunnundo?",
       "Do you help your parent understand?",
       "cheyyunnu",
       "I help sometimes",
@@ -701,7 +701,7 @@ export const DEMO_SCRIPTS = {
       "ivide nirthikko",
       "Stop here",
     ),
-    step("നന്നി!", "nanni!", "Thank you!", "nanni", "Thank you"),
+    step("നന്ദി!", "nanni!", "Thank you!", "nanni", "Thank you"),
   ],
   hospital: [
     step("സുഖമാണോ?", "sukhamano?", "Are you feeling okay?", "sukham, nanni", "Fine, thanks"),
@@ -740,7 +740,7 @@ export const DEMO_SCRIPTS = {
       "shari",
       "Okay",
     ),
-    step("കൂടെ നിന്നതിന് നന്നി.", "koode ninnathinu nanni.", "Thanks for staying with me.", "nanni", "Thank you"),
+    step("കൂടെ നിന്നതിന് നന്ദി.", "koode ninnathinu nanni.", "Thanks for staying with me.", "nanni", "Thank you"),
     step("പിന്നെ വരും.", "pinne varum.", "I will come again.", "shari", "Okay"),
   ],
   beach: [
@@ -794,12 +794,12 @@ export const DEMO_SCRIPTS = {
       "മഴ കൂടുതലാണ്, ഇവിടെ നിൽക്കൂ.",
       "mazha kooduthal aanu, ivide nilkkoo.",
       "Rain is heavy, wait here.",
-      "nanni, chaya veno?",
+      "nanni, chaaya veno?",
       "Thanks, can I get tea?",
     ),
     step(
       "ചായ റെഡി ആകും.",
-      "chaya ready aakum.",
+      "chaaya ready aakum.",
       "Tea will be ready soon.",
       "nanni",
       "Thank you",
@@ -827,12 +827,12 @@ export const DEMO_SCRIPTS = {
     ),
     step(
       "ചായ നന്നായി.",
-      "chaya nannayi.",
+      "chaaya nannayi.",
       "The tea is good.",
       "nannayi",
       "It is good",
     ),
-    step("നന്നി!", "nanni!", "Thank you!", "nanni", "Thank you"),
+    step("നന്ദി!", "nanni!", "Thank you!", "nanni", "Thank you"),
     step("പോയി വരാം.", "pooyi varaam.", "Bye, take care.", "pooyi varaam", "Bye"),
   ],
   movie: [
@@ -859,7 +859,7 @@ export const DEMO_SCRIPTS = {
     ),
     step(
       "തമാശ കിട്ടിയോ?",
-      "thamasha kittiyo?",
+      "thamaasha kittiyo?",
       "Did you catch the jokes?",
       "kurachu manassilaayi",
       "I caught some of them",

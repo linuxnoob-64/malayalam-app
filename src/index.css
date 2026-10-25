@@ -1399,9 +1399,12 @@ p {
 }
 
 .composer__hint-preview {
+  box-sizing: border-box;
+  width: 100%;
   font-size: 0.8rem;
   color: var(--text-muted);
-  margin-bottom: 0.35rem;
+  margin: 0 0 0.35rem;
+  padding: 0 0.85rem 0 calc(0.85rem + 2.35rem + 0.65rem);
 }
 
 .composer__row {

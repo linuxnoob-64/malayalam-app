@@ -335,7 +335,9 @@ export default function ConversationScreen({ scenarioId, onComplete, onHome }) {
         {hintPreview ? (
           <p className="composer__hint-preview" aria-live="polite">
             Hint: {hintPreview.text}
-            {hintPreview.en ? `. ${hintPreview.en}` : ""}
+            {hintPreview.en
+              ? `${/[.?!…]$/.test(hintPreview.text.trim()) ? " " : ". "}${hintPreview.en}`
+              : ""}
           </p>
         ) : null}
         {speech.listening ? (
