@@ -1,59 +1,68 @@
-import { similarityLabel } from "./replySimilarity.js";
-
-function effectiveSimilarity(check) {
-  if (check.similarity != null) return check.similarity;
-  const replied = (check.userReply ?? "").trim();
-  const target = (check.expectedManglish ?? check.expectedMl ?? "").trim();
-  if (replied && target) return 35;
-  if (replied) return 28;
-  return null;
+export function gradeLabel(grade) {
+  if (grade >= 5) return "Excellent";
+  if (grade >= 4) return "Good";
+  if (grade >= 3) return "Okay";
+  return "Needs work";
 }
 
-/**
- * Grade from how closely user replies matched each turn's suggested_reply.
- */
-export function computeSessionGrade(stats, meta = {}) {
-  const checks = stats.replyChecks ?? [];
-  const turns = stats.turns ?? 0;
+export function buildTurnGrades(messages) {
+  const turns = [];
+  for (let i = 0; i < messages.length; i++) {
+    const m = messages[i];
+    if (m.role !== "assistant" || typeof m.grade !== "number") continue;
+    let userIndex = -1;
+    for (let j = i - 1; j >= 0; j--) {
+      if (messages[j].role === "user") {
+        userIndex = j;
+        break;
+      }
+    }
+    let suggested = null;
+    for (let j = userIndex - 1; j >= 0; j--) {
+      if (messages[j].role === "assistant") {
+        suggested = messages[j].suggested_reply ?? null;
+        break;
+      }
+    }
+    turns.push({
+      grade: m.grade,
+      score: m.grade * 20,
+      label: gradeLabel(m.grade),
+      rationale: m.rationale ?? "",
+      userReply: userIndex >= 0 ? (messages[userIndex].content ?? "").trim() : "",
+      suggested,
+    });
+  }
+  return turns;
+}
 
-  const effective = checks
-    .map((c) => ({ ...c, similarity: effectiveSimilarity(c) }))
-    .filter((c) => c.similarity != null);
+export function computeSessionGrade(messages) {
+  const turnGrades = buildTurnGrades(messages);
 
-  let avgSimilarity = 0;
-  if (effective.length > 0) {
-    avgSimilarity = Math.round(
-      effective.reduce((sum, c) => sum + c.similarity, 0) / effective.length,
-    );
+  if (turnGrades.length === 0) {
+    return {
+      score: null,
+      grade: "—",
+      headline: "Thanks for practicing",
+      feedback: ["Reply to the character to get graded turns."],
+      turnGrades,
+    };
   }
 
-  let score = effective.length > 0 ? avgSimilarity : turns > 0 ? 48 : 0;
+  const avg = turnGrades.reduce((sum, t) => sum + t.grade, 0) / turnGrades.length;
+  const score = Math.round(avg * 20);
 
-  const strong = effective.filter((c) => c.similarity >= 65).length;
-  const weak = effective.filter((c) => c.similarity < 20).length;
-  score += Math.min(strong * 2, 10);
-  score -= Math.min(weak * 2, 6);
-
-  if (meta.finishedNaturally) score += 5;
-  else if (turns >= 4) score += 2;
-
-  score = Math.max(0, Math.min(100, Math.round(score)));
-
-  if (turns >= 1) {
-    score = Math.max(score, 32);
-  }
-
-  let grade = "C";
-  let headline = "Keep practicing";
+  let grade;
+  let headline;
   if (score >= 92) {
     grade = "A+";
-    headline = "Replies matched very well";
+    headline = "Excellent replies";
   } else if (score >= 84) {
     grade = "A";
-    headline = "Strong speaking match";
+    headline = "Strong conversation";
   } else if (score >= 76) {
     grade = "B+";
-    headline = "Good reply accuracy";
+    headline = "Good replies";
   } else if (score >= 68) {
     grade = "B";
     headline = "Solid effort";
@@ -64,53 +73,15 @@ export function computeSessionGrade(stats, meta = {}) {
     grade = "C";
     headline = "Nice effort — keep going";
   } else {
-    grade = "C";
+    grade = "D";
     headline = "Thanks for practicing";
-  }
-
-  const feedback = [];
-  if (effective.length > 0) {
-    feedback.push(`Average match to suggested replies: ${avgSimilarity}%.`);
-    const best = [...effective].sort((a, b) => b.similarity - a.similarity)[0];
-    const worst = [...effective].sort((a, b) => a.similarity - b.similarity)[0];
-    if (best) {
-      feedback.push(`Best turn: ${best.similarity}% · ${similarityLabel(best.similarity)}`);
-    }
-    if (worst && worst.similarity < 55 && worst !== best) {
-      feedback.push(
-        `Hardest turn: ${worst.similarity}% · you said "${truncate(worst.userReply)}" · target "${truncate(worst.expectedManglish || worst.expectedMl)}"`,
-      );
-    }
-  } else if (turns > 0) {
-    feedback.push("You replied in every turn — great practice. Match the hint phrase for a higher score next time.");
-  }
-
-  if (stats.hintsUsed > 0 && effective.length > 0) {
-    const avgWithHints = effective.filter((c) => c.hintLevel > 0);
-    if (avgWithHints.length) {
-      const hintAvg = Math.round(
-        avgWithHints.reduce((s, c) => s + c.similarity, 0) / avgWithHints.length,
-      );
-      feedback.push(`After using hints, your match averaged ${hintAvg}% on those turns.`);
-    }
-  }
-
-  if (!meta.finishedNaturally && turns > 0 && turns < 8) {
-    feedback.push("Finish all 8 turns to boost your session score.");
   }
 
   return {
     score,
     grade,
     headline,
-    feedback,
-    avgSimilarity,
-    replyChecks: checks,
+    feedback: [],
+    turnGrades,
   };
-}
-
-function truncate(s, max = 42) {
-  const t = (s ?? "").trim();
-  if (t.length <= max) return t;
-  return `${t.slice(0, max - 1)}…`;
 }

@@ -1,41 +1,35 @@
 import { useDialogueDisplay } from "../hooks/useDialogueDisplay.js";
 import { primaryDialogueText } from "../lib/dialogueDisplay.js";
-import { similarityLabel } from "../lib/replySimilarity.js";
 
-export default function ReplyMatchList({ replyChecks }) {
+export default function ReplyMatchList({ turnGrades }) {
   const { mode } = useDialogueDisplay();
 
-  if (!replyChecks?.length) return null;
+  if (!turnGrades?.length) return null;
 
   return (
     <section className="reply-match" aria-labelledby="reply-match-heading">
-      <h2 id="reply-match-heading">How your replies matched</h2>
-      <p className="summary-note">Each score compares what you typed to the phrase we suggested for that turn.</p>
+      <h2 id="reply-match-heading">How your replies were graded</h2>
       <ol className="reply-match__list">
-        {replyChecks.map((c, i) => {
-          const suggestedLine = {
-            manglish: c.expectedManglish,
-            ml: c.expectedMl,
-            en: c.expectedEn,
-          };
-          const suggestedPrimary = primaryDialogueText(suggestedLine, mode);
+        {turnGrades.map((t, i) => {
+          const suggestedPrimary = t.suggested ? primaryDialogueText(t.suggested, mode) : "";
           return (
             <li key={i} className="reply-match__item">
-              <div className="reply-match__score" data-tier={tier(c.similarity)}>
-                {c.similarity != null ? `${c.similarity}%` : "—"}
+              <div className="reply-match__score" data-tier={tier(t.grade)}>
+                {t.score}%
               </div>
               <div className="reply-match__body">
-                <p className="reply-match__label">{similarityLabel(c.similarity)}</p>
+                <p className="reply-match__label">{t.label}</p>
                 <p>
-                  <strong>You:</strong> {c.userReply || "(empty)"}
+                  <strong>You:</strong> {t.userReply || "(empty)"}
                 </p>
+                {t.rationale ? <p className="reply-match__rationale">{t.rationale}</p> : null}
                 {suggestedPrimary ? (
                   <p className="reply-match__expected">
-                    <strong>Suggested:</strong> {suggestedPrimary}
+                    <strong>Another way to say it:</strong> {suggestedPrimary}
                   </p>
                 ) : null}
-                {c.expectedEn ? (
-                  <p className="reply-match__expected-en">{c.expectedEn}</p>
+                {t.suggested?.en ? (
+                  <p className="reply-match__expected-en">{t.suggested.en}</p>
                 ) : null}
               </div>
             </li>
@@ -46,9 +40,8 @@ export default function ReplyMatchList({ replyChecks }) {
   );
 }
 
-function tier(sim) {
-  if (sim == null) return "na";
-  if (sim >= 75) return "high";
-  if (sim >= 50) return "mid";
+function tier(grade) {
+  if (grade >= 4) return "high";
+  if (grade >= 3) return "mid";
   return "low";
 }

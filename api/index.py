@@ -155,6 +155,7 @@ class handler(BaseHTTPRequestHandler):
             if not isinstance(turn, str) or not turn.strip():
                 self.send_json(400, {"error": "turn must be a non-empty string"})
                 return
+            turn = int(turn)
             
             if not isinstance(chat_history, str) or not chat_history.strip():
                 self.send_json(400, {"error": "chat_history must be a non-empty string"})

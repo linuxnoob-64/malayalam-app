@@ -1,7 +1,5 @@
 // Three-tap hint ladder uses suggested_reply from each assistant turn.
 
-import { scoreReplySimilarity } from "./replySimilarity.js";
-
 export function getHint(suggested, level) {
   if (!suggested || level <= 0) return null;
   const words = suggested.manglish.trim().split(/\s+/);
@@ -13,22 +11,11 @@ export function getHint(suggested, level) {
   return null;
 }
 
-export function recordTurn(stats, { hintLevel, phrasesUsed, suggested, userReply }) {
+export function recordTurn(stats, { hintLevel, phrasesUsed, suggested }) {
   stats.turns += 1;
   stats.hintsUsed += hintLevel > 0 ? 1 : 0;
   for (const p of phrasesUsed) stats.saidOnOwn.add(p);
   if (hintLevel >= 2 && suggested) stats.neededHelp.push(suggested);
-
-  const similarity = scoreReplySimilarity(userReply, suggested);
-  stats.replyChecks.push({
-    similarity,
-    hintLevel,
-    userReply: (userReply ?? "").trim(),
-    expectedManglish: suggested?.manglish ?? "",
-    expectedMl: suggested?.ml ?? "",
-    expectedEn: suggested?.en ?? "",
-  });
-
   return stats;
 }
 
@@ -37,5 +24,4 @@ export const newStats = () => ({
   hintsUsed: 0,
   saidOnOwn: new Set(),
   neededHelp: [],
-  replyChecks: [],
 });
