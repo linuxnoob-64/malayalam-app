@@ -20,7 +20,9 @@ export default async function handler(req, res) {
   const address =
     addressAs === "mole"
       ? "Address the learner as mole (daughter, female)"
-      : "Address the learner as mone (son, male)";
+      : addressAs === "kunje"
+        ? "Address the learner as kunje, gender-neutral, avoid mone or mole"
+        : "Address the learner as mone (son, male)";
   const scenario = [s.character, s.setting, s.targetPhrases.join("; "), address].join("; ");
 
   const host = req.headers.host ?? "";

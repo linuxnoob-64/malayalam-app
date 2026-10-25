@@ -4,7 +4,7 @@ export function loadAddressAs() {
   if (typeof window === "undefined") return "mone";
   try {
     const v = localStorage.getItem(ADDRESS_AS_KEY);
-    if (v === "mone" || v === "mole") return v;
+    if (v === "mone" || v === "mole" || v === "kunje") return v;
   } catch {
     return "mone";
   }

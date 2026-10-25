@@ -54,6 +54,7 @@ export default function HomeScreen({ onStartScenario, onOpenPhrases, phrasesRevi
                 {[
                   { id: "mone", label: "Mone (son)" },
                   { id: "mole", label: "Mole (daughter)" },
+                  { id: "kunje", label: "Kunje (neutral)" },
                 ].map((opt) => (
                   <button
                     key={opt.id}
