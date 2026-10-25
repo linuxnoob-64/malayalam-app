@@ -24,7 +24,7 @@ export default function SummaryScreen({
 }) {
   const scenario = getScenario(scenarioId);
   const phrases = useMemo(
-    () => buildSummaryPhrases(session.stats, session.messages),
+    () => buildSummaryPhrases(session.messages),
     [session],
   );
   const grade = useMemo(
