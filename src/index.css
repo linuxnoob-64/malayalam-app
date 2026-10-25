@@ -1818,6 +1818,10 @@ p {
   margin-bottom: 0.2rem;
 }
 
+.reply-match__rationale {
+  color: var(--text);
+}
+
 .reply-match__expected {
   color: var(--forest-soft);
   font-style: italic;

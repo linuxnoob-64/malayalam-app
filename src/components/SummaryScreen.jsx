@@ -29,10 +29,7 @@ export default function SummaryScreen({
   );
   const grade = useMemo(
     () =>
-      computeSessionGrade(session.stats, {
-        finishedNaturally: session.finishedNaturally,
-        turnCount: session.stats.turns,
-      }),
+      computeSessionGrade(session.messages),
     [session],
   );
 
@@ -103,7 +100,7 @@ export default function SummaryScreen({
 
         <SessionGradeCard gradeResult={grade} />
 
-        <ReplyMatchList replyChecks={grade.replyChecks} />
+        <ReplyMatchList turnGrades={grade.turnGrades} />
 
         <p className="summary-meta">
           {session.stats.turns} repl{session.stats.turns === 1 ? "y" : "ies"}

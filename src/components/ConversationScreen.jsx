@@ -88,7 +88,6 @@ export default function ConversationScreen({ scenarioId, onComplete, onHome }) {
           hintLevel: pendingRef.current.hintLevel,
           phrasesUsed: data.phrases_used ?? [],
           suggested,
-          userReply: pendingRef.current.userReply,
         });
         setStats(nextStats);
         pendingRef.current = { hintLevel: 0, suggested: null };
@@ -98,7 +97,9 @@ export default function ConversationScreen({ scenarioId, onComplete, onHome }) {
         role: "assistant",
         line: data.line,
         correction: data.correction,
-        suggested_reply: data.suggested_reply,
+        suggested_reply: data.suggested_reply ?? null,
+        grade: typeof data.grade === "number" ? data.grade : null,
+        rationale: data.rationale ?? null,
         turn: data.turn,
       };
       const nextMessages = [...priorMessages, assistantMsg];
@@ -146,7 +147,7 @@ export default function ConversationScreen({ scenarioId, onComplete, onHome }) {
     const text = input.trim();
     if (!text || loading) return;
 
-    pendingRef.current = { hintLevel, suggested: activeSuggested, userReply: text };
+    pendingRef.current = { hintLevel, suggested: activeSuggested };
     const userMsg = { role: "user", content: text };
     const nextMessages = [...messages, userMsg];
     setMessages(nextMessages);

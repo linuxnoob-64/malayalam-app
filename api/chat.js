@@ -38,18 +38,20 @@ export default async function handler(req, res) {
   const grade = first ? null : data.grade;
   const rationale = first ? null : data.rationale;
   const correction =
-    !first && typeof grade === "number" && grade <= 3
+    !first && !done && typeof grade === "number" && grade <= 3
       ? { said: user_message, better_manglish: data.hint_full_romanized, en: rationale }
       : null;
 
   return res.status(200).json({
     line: { ml: data.script, manglish: data.romanized, en: data.english },
     correction,
-    suggested_reply: {
-      ml: data.hint_word,
-      manglish: data.hint_full_romanized,
-      en: data.hint_full_english,
-    },
+    suggested_reply: done
+      ? null
+      : {
+          ml: data.hint_word,
+          manglish: data.hint_full_romanized,
+          en: data.hint_full_english,
+        },
     phrases_used: [],
     turn,
     done,
