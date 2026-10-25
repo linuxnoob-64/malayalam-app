@@ -217,6 +217,7 @@ export default function ConversationScreen({ scenarioId, onComplete, onHome }) {
 
   const latestAssistantIndex = lastAssistantIndex(messages);
   const showHint =
+    !done &&
     !loading &&
     latestAssistantIndex >= 0 &&
     messages[messages.length - 1]?.role === "assistant";
@@ -342,7 +343,7 @@ export default function ConversationScreen({ scenarioId, onComplete, onHome }) {
         </div>
       ) : null}
 
-      <footer className="composer">
+      <footer className={`composer${done ? " composer--closed" : ""}`}>
         {hintPreview ? (
           <p className="composer__hint-preview" aria-live="polite">
             Hint: {hintPreview.text}
@@ -377,7 +378,11 @@ export default function ConversationScreen({ scenarioId, onComplete, onHome }) {
             id="reply-input"
             ref={inputRef}
             rows={2}
-            placeholder="Type your reply, or tap Voice for Malayalam speech recognition…"
+            placeholder={
+              done
+                ? "Conversation finished"
+                : "Type your reply, or tap Voice for Malayalam speech recognition…"
+            }
             value={input}
             onChange={(e) => {
               setInput(e.target.value);

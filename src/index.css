@@ -1464,6 +1464,22 @@ p {
   border-radius: 4px;
 }
 
+.composer--closed .composer__row {
+  background: var(--paper-deep);
+  border-color: var(--border);
+  opacity: 0.6;
+}
+
+.composer--closed textarea {
+  resize: none;
+  cursor: not-allowed;
+}
+
+.composer--closed .mic-btn,
+.composer--closed .btn {
+  cursor: not-allowed;
+}
+
 .mic-btn {
   flex-shrink: 0;
   font: inherit;
