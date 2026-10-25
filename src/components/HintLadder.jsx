@@ -15,7 +15,7 @@ export default function HintLadder({ suggested, level, onAdvance, disabled }) {
         type="button"
         className="hint-ladder__btn"
         onClick={onAdvance}
-        disabled={!canAdvance && level >= 3}
+        disabled={disabled || (!canAdvance && level >= 3)}
         aria-expanded={level > 0}
         aria-label={
           level === 0

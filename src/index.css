@@ -1069,6 +1069,12 @@ p {
   -webkit-overflow-scrolling: touch;
 }
 
+.conversation-results {
+  display: flex;
+  justify-content: center;
+  padding-top: 0.25rem;
+}
+
 .message--user {
   align-self: flex-end;
   max-width: 85%;
