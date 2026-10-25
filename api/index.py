@@ -19,7 +19,7 @@ max_turns = 8
 # Response Schema
 class LessonResponse(BaseModel):
     script: str = Field(description="Malayalam script (Malayalam Lipi) of the roleplay character's response")
-    romanized: str = Field(description="Manglish romanized text of the roleplay character's response. IN THE LATIN ALPHABET")
+    romanized: str = Field(description="Manglish romanized text of the roleplay character's response. Casual WhatsApp-style Manglish using plain a-z only. No accents or diacritics like ā, ī, ḍ, ṇ. Write 'padikkunnu', not 'paḍikkunnu'")
     english: str = Field(description="Natural English translation of the roleplay character's response")
     hint_word: str = Field(description="First good word of a good reply by the user in Malayalam script (1st hint)")
     hint_full_romanized: str = Field(description="Full phrase of a good reply by the user in Manglish (2nd hint)")
