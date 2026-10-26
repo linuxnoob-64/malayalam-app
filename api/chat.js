@@ -28,17 +28,32 @@ export default async function handler(req, res) {
   const host = req.headers.host ?? "";
   const protocol = host.startsWith("localhost") ? "http" : "https";
 
+  const retryDelays = [1500, 3000];
   let data;
-  try {
-    const r = await fetch(`${protocol}://${host}/api/index`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_message, scenario, turn, chat_history }),
-    });
-    data = await r.json().catch(() => ({}));
-    if (!r.ok) return res.status(502).json({ error: data.error ?? `backend returned ${r.status}` });
-  } catch (err) {
-    return res.status(502).json({ error: String(err?.message ?? err) });
+  for (let attempt = 0; ; attempt++) {
+    let status;
+    let error;
+    try {
+      const r = await fetch(`${protocol}://${host}/api/index`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_message, scenario, turn, chat_history }),
+      });
+      data = await r.json().catch(() => ({}));
+      if (r.ok) break;
+      status = r.status;
+      error = data.error ?? `backend returned ${r.status}`;
+    } catch (err) {
+      error = String(err?.message ?? err);
+    }
+
+    const message = typeof error === "string" ? error : JSON.stringify(error);
+    const busy = status === 503 || message.includes("UNAVAILABLE") || /high demand/i.test(message);
+    if (!busy) return res.status(502).json({ error });
+    if (attempt >= retryDelays.length) {
+      return res.status(503).json({ error: "The AI is busy right now, please tap Retry in a moment." });
+    }
+    await new Promise((resolve) => setTimeout(resolve, retryDelays[attempt]));
   }
 
   const grade = first ? null : data.grade;
