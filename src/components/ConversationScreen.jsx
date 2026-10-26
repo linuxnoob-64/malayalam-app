@@ -289,7 +289,7 @@ export default function ConversationScreen({ scenarioId, onComplete, onHome }) {
                     <p className="correction__label">Gentle tip</p>
                     <p>
                       You said &ldquo;{m.correction.said}&rdquo;. Next, try:{" "}
-                      <strong>{m.correction.better_manglish}</strong>
+                      <strong>{m.correction.better_manglish?.replace(/\.+$/, "")}</strong>
                       {m.correction.en ? `. ${m.correction.en}` : null}
                     </p>
                   </aside>
