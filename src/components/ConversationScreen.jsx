@@ -288,7 +288,7 @@ export default function ConversationScreen({ scenarioId, onComplete, onHome }) {
                   <aside className="correction">
                     <p className="correction__label">Gentle tip</p>
                     <p>
-                      Instead of &ldquo;{m.correction.said}&rdquo;, try{" "}
+                      You said &ldquo;{m.correction.said}&rdquo;. Next, try:{" "}
                       <strong>{m.correction.better_manglish}</strong>
                       {m.correction.en ? `. ${m.correction.en}` : null}
                     </p>
